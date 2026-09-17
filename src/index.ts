@@ -7,9 +7,4 @@ export type {
   JevResponse,
   RiskProfile,
 } from "./types/jev.js";
-
-import { buildServer } from "./server/app.js";
-
-const app = buildServer();
-
-export default app;
+export { default } from "./server/app.js";

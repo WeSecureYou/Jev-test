@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { pathToFileURL } from "node:url";
 import { ZodError } from "zod";
 import { analyzeOccupation } from "../services/analyzer.js";
@@ -6,6 +7,14 @@ import { analyzeInputSchema } from "../types/jev.js";
 
 export function buildServer(): FastifyInstance {
   const app = Fastify({ logger: true });
+
+  app.get("/", async () => ({
+    name: "job-risk-analyzer",
+    endpoints: {
+      analyze: "POST /api/analyze",
+      health: "GET /health",
+    },
+  }));
 
   app.get("/health", async () => ({ status: "ok" }));
 
@@ -35,10 +44,20 @@ export function buildServer(): FastifyInstance {
   return app;
 }
 
+const app = buildServer();
+
+export default async function handler(
+  request: IncomingMessage,
+  response: ServerResponse,
+): Promise<void> {
+  await app.ready();
+  app.server.emit("request", request, response);
+}
+
 async function start(): Promise<void> {
   const port = Number.parseInt(process.env.PORT ?? "3000", 10);
   const host = process.env.HOST ?? "0.0.0.0";
-  await buildServer().listen({ port, host });
+  await app.listen({ port, host });
 }
 
 const isMain = process.argv[1]
