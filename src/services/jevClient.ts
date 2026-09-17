@@ -146,9 +146,13 @@ export interface JevEvaluation {
   source: "jev" | "mock";
 }
 
+export function getJevApiKey(): string | undefined {
+  return process.env.JEV_API_KEY?.trim() || undefined;
+}
+
 export async function evaluateWithJev(request: JevRequest): Promise<JevEvaluation> {
   const payload = jevRequestSchema.parse(request);
-  const apiKey = process.env.JEV_API_KEY?.trim();
+  const apiKey = getJevApiKey();
 
   if (!apiKey) {
     if (!hasWarnedAboutMock) {

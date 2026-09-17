@@ -3,20 +3,24 @@ import type { IncomingMessage, ServerResponse } from "node:http";
 import { pathToFileURL } from "node:url";
 import { ZodError } from "zod";
 import { analyzeOccupation } from "../services/analyzer.js";
+import { getJevApiKey } from "../services/jevClient.js";
 import { analyzeInputSchema } from "../types/jev.js";
+import { HOME_PAGE } from "./web.js";
 
 export function buildServer(): FastifyInstance {
   const app = Fastify({ logger: true });
 
-  app.get("/", async () => ({
-    name: "job-risk-analyzer",
-    endpoints: {
-      analyze: "POST /api/analyze",
-      health: "GET /health",
-    },
-  }));
+  app.get("/", async (_request, reply) => {
+    return reply.type("text/html; charset=utf-8").send(HOME_PAGE);
+  });
 
-  app.get("/health", async () => ({ status: "ok" }));
+  app.get("/health", async (_request, reply) => {
+    reply.header("Cache-Control", "no-store");
+    return {
+      status: "ok",
+      analysisMode: getJevApiKey() ? "jev" : "mock",
+    };
+  });
 
   app.post("/api/analyze", async (request, reply) => {
     try {

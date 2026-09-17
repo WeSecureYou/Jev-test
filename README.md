@@ -58,6 +58,8 @@ npm run dev
 
 The server listens on `0.0.0.0:3000` by default. Override it with `HOST` and `PORT`.
 
+Open `http://localhost:3000` in a browser to use the responsive web interface. Enter an occupation and optional role context, then select **Run occupation forecast**. The page calls the REST API from the browser and displays the risk forecast in the report panel.
+
 Analyze an occupation:
 
 ```bash
